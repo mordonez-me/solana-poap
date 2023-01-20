@@ -1,0 +1,16 @@
+{
+  "name": "solana-poap-v2",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "create-collection": "ts-node create.ts",
+    "airdrop": "ts-node airdrop.ts"
+  },
+  "dependencies": {
+    "@metaplex-foundation/js": "^0.17.12",
+    "@solana/web3.js": "^1.73.0",
+    "dotenv": "^16.0.3",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
+  }
+}
