@@ -35,7 +35,7 @@ const init = async () => {
         return mintToUser(metaplex, keypair, address, CANDY_MACHINE_ID, logFileError, logFileSuccess)
             .then(result => {
                 let { nft, response } = result
-                fs.appendFileSync(logFileSuccess, address)
+                fs.appendFileSync(logFileSuccess, address + '\n')
 
                 console.log(`✅ - Minted NFT: ${nft.address.toString()}`);
                 console.log(`     https://explorer.solana.com/address/${nft.address.toString()}`);
@@ -43,7 +43,7 @@ const init = async () => {
             })
             .catch(e => {
                 console.log(e)
-                fs.appendFileSync(logFileError, address);
+                fs.appendFileSync(logFileError, address + '\n');
                 console.log(`🔴 - User address ${address} not minted`);
             })
     })

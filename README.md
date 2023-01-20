@@ -20,6 +20,12 @@ export const configFile = PATH_TO_FILE_FOR_CONFIG // This file contains info lik
 export const distributionListFile = PATH_TO_FILE_FOR_AIRDROP_ADDRESSES
 export const collectionName = NAME_OF_COLLECTION
 export const imageName = NAME_OF_IMAGE // The name to be assigned to imagePath in Arweave
+export const imageDescription = DESCRIPTION_OF_IMAGE
+export const imageAttributes = ARRAY_WITH_TRAITS // e.g.[{ "trait_type": "Location", "value": "Twitter Space" }]
+export const itemName = NAME_FOR_EACH_NFT //just support same name or prefix e.g. "Solana University POAP #$ID+1$"
+export const nameLength = NAME_LENGTH // e.g. 0, because the use of prefix
+export const prefixUri = PREFIX_OF_URI_ITEM //e.g."https://arweave.net/"
+export const prefixUriLength = PREFIX_URI_LENGTH // For arweave is 43 fixed size for id
 ```
 
 2. Add the file defined on distributionListFile variable on setttings.ts

@@ -1,6 +1,6 @@
 import { CreateCandyMachineInput, DefaultCandyGuardSettings, Metaplex, toBigNumber, toDateTime, toMetaplexFile } from "@metaplex-foundation/js"
 import { Keypair, PublicKey } from "@solana/web3.js"
-import { cluster, collectionName, collectionSize, endDate, imageName, imagePath, pkPath, startDate } from "./settings";
+import { cluster, collectionName, collectionSize, endDate, imageAttributes, imageDescription, imageName, imagePath, nameLength, pkPath, itemName, prefixUri, prefixUriLength, startDate } from "./settings";
 import { getKeypair, initializeMetaplex } from "./utils"
 const fs = require('fs')
 
@@ -8,6 +8,8 @@ const uploadMetadata = async (metaplex: Metaplex, imageFile: Buffer) => {
     const { uri } = await metaplex.nfts().uploadMetadata({
         name: imageName,
         image: toMetaplexFile(imageFile, 'space.png'),
+        description: imageDescription,
+        attributes: imageAttributes
     });
     return uri
 }
@@ -39,6 +41,14 @@ const createCandyMachine = async (metaplex: Metaplex, keypair: Keypair, collecti
     const candyMachineSettings: CreateCandyMachineInput<DefaultCandyGuardSettings> =
     {
         itemsAvailable: toBigNumber(collectionSize),
+        itemSettings: {
+            type: 'configLines',
+            prefixName: itemName,
+            nameLength: nameLength,
+            prefixUri: prefixUri,
+            uriLength: prefixUriLength,
+            isSequential: true,
+        },
         sellerFeeBasisPoints: 0,
         maxEditionSupply: toBigNumber(0),
         isMutable: true,
@@ -64,11 +74,14 @@ const addNFTItems = async (metaplex: Metaplex, candyMachinePubkey: PublicKey, ur
     const candyMachine = await metaplex
         .candyMachines()
         .findByAddress({ address: candyMachinePubkey });
+    const piecesUri = uri.split('/')
+    const uriId = piecesUri[piecesUri.length - 1]
     const items: any[] = [];
     for (let i = 0; i < collectionSize; i++) {
         items.push({
-            name: `Solana Space NFT # ${i + 1}`,
-            uri: uri
+            name: '',
+            index: i,
+            uri: uriId
         })
     }
     const { response } = await metaplex.candyMachines().insertItems({
