@@ -1,20 +1,34 @@
 import { clusterApiUrl } from "@solana/web3.js"
 
+// General settings
 export const pkPath = './pk.key'
-export const imagePath = './space.png'
 export const cluster = clusterApiUrl("devnet")
-export const collectionSize = 3
-export const startDate = "2023-01-20T09:00:00Z"
-export const endDate = "2023-01-21T09:00:00Z"
+export const startDate = "2023-05-18T09:00:00Z"
+export const endDate = "2023-06-21T09:00:00Z"
 export const configFile = "./.config"
 export const distributionListFile = "./distribution_list.txt"
-export const collectionName = "Solana University Space POAP"
-export const imageName = "Solana University Space Image"
-export const imageDescription = "Solana University Space Image"
-export const imageAttributes = [
-    { "trait_type": "Location", "value": "Twitter Space" }
+export const variablePrefix = 'POAP_'
+
+// Collection settings
+export const overrideCollection = false
+export const collectionName = "Solana University POAPs"
+export const collectionImageName = "Solana University POAPs"
+export const collectionImageDescription = "Solana University POAPs"
+export const collectionImagePath = './collection.png'
+
+// Candy Machine settings
+export const candyMachineItemsAvailable = 2
+
+// NFT Item settings
+export const itemImagePath = './caro.jpeg'
+export const itemImageName = "Community Call #1"
+export const itemImageDescription = "Description for Community Call"
+export const itemImageAttributes = [
+    { "trait_type": "Location", "value": "Twitter" }
 ]
-export const itemName = "Solana University POAP #$ID+1$" // Use prefix to save space
-export const nameLength = 0 // 0 because the use of prefix
+
+// NFT Settings
+export const itemName = "Community Call"
+export const nameLength = 0
 export const prefixUri = "https://arweave.net/"
-export const prefixUriLength = 43 // This is for arweave
+export const prefixUriLength = 43

@@ -7,10 +7,16 @@
     "airdrop": "ts-node airdrop.ts"
   },
   "dependencies": {
-    "@metaplex-foundation/js": "^0.17.12",
-    "@solana/web3.js": "^1.73.0",
+    "@metaplex-foundation/js": "^0.19.3",
+    "@metaplex-foundation/js-plugin-nft-storage": "^0.19.3",
+    "@metaplex-foundation/umi": "^0.7.7",
+    "@solana/web3.js": "^1.76.0",
     "dotenv": "^16.0.3",
+    "lodash": "^4.17.21",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.4"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.194"
   }
 }

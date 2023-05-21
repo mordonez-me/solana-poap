@@ -1,15 +1,24 @@
-import { CreateCandyMachineInput, DefaultCandyGuardSettings, Metaplex, toBigNumber, toDateTime, toMetaplexFile } from "@metaplex-foundation/js"
+import { Metaplex, toBigNumber, toDateTime, toMetaplexFile, BigNumber, SOL, sol, CreateCandyMachineV2Input, CandyMachineConfigLineSettings } from "@metaplex-foundation/js"
 import { Keypair, PublicKey } from "@solana/web3.js"
-import { cluster, collectionName, collectionSize, endDate, imageAttributes, imageDescription, imageName, imagePath, nameLength, pkPath, itemName, prefixUri, prefixUriLength, startDate } from "./settings";
-import { getKeypair, initializeMetaplex } from "./utils"
-const fs = require('fs')
+import { cluster, collectionName, candyMachineItemsAvailable, endDate, itemImageAttributes, itemImageDescription, itemImageName, itemImagePath, nameLength, pkPath, itemName, prefixUri, prefixUriLength, startDate, overrideCollection, variablePrefix, collectionImagePath, collectionImageDescription, collectionImageName } from "./settings";
+import { getKeypair, initializeMetaplex, getConfigObject, updateConfigInFile } from "./utils"
+import { nftStorage } from "@metaplex-foundation/js-plugin-nft-storage";
+import * as dotenv from 'dotenv'
+import * as fp from 'lodash/fp'
+import * as _ from 'lodash'
 
-const uploadMetadata = async (metaplex: Metaplex, imageFile: Buffer) => {
+
+const fs = require('fs')
+const path = require('path')
+
+dotenv.config({ path: path.resolve(process.cwd(), '.config') })
+
+const uploadMetadata = async (metaplex: Metaplex, imageFile: Buffer, itemImageName: string, itemImageDescription: string, itemImageAttributes: Array<{ trait_type?: string; value?: string;[key: string]: unknown; }>) => {
     const { uri } = await metaplex.nfts().uploadMetadata({
-        name: imageName,
-        image: toMetaplexFile(imageFile, 'space.png'),
-        description: imageDescription,
-        attributes: imageAttributes
+        name: itemImageName,
+        image: toMetaplexFile(imageFile, 'poap.png'),
+        description: itemImageDescription,
+        attributes: itemImageAttributes,
     });
     return uri
 }
@@ -27,42 +36,43 @@ const createNFT = async (metaplex: Metaplex, keypair: Keypair, uri: string) => {
 
 // Run functions
 
-
-const create = async (metaplex: Metaplex, keypair: Keypair, uri: string) => {
+const createCollection = async (metaplex: Metaplex, keypair: Keypair, uri: string) => {
 
     const collectionNft = await createNFT(metaplex, keypair, uri)
-    console.log('collectionNft', collectionNft)
     console.log(`✅ - Minted Collection NFT: ${collectionNft.address.toString()}`);
     console.log(`     https://explorer.solana.com/address/${collectionNft.address.toString()}`);
     return collectionNft
 }
 
 const createCandyMachine = async (metaplex: Metaplex, keypair: Keypair, collectionMintPubkey: PublicKey) => {
-    const candyMachineSettings: CreateCandyMachineInput<DefaultCandyGuardSettings> =
+    const itemSettings: CandyMachineConfigLineSettings = {
+        type: 'configLines',
+        prefixName: itemName + ' #$ID+1$',
+        nameLength: nameLength,
+        prefixUri: prefixUri,
+        uriLength: prefixUriLength,
+        isSequential: true,
+    }
+    const candyMachineSettings =
     {
-        itemsAvailable: toBigNumber(collectionSize),
-        itemSettings: {
-            type: 'configLines',
-            prefixName: itemName,
-            nameLength: nameLength,
-            prefixUri: prefixUri,
-            uriLength: prefixUriLength,
-            isSequential: true,
-        },
+        itemsAvailable: toBigNumber(candyMachineItemsAvailable),
+        itemSettings,
         sellerFeeBasisPoints: 0,
         maxEditionSupply: toBigNumber(0),
         isMutable: true,
         creators: [
-            { address: keypair.publicKey, share: 100 },
+            { address: keypair.publicKey, share: 100, verified: true },
         ],
         collection: {
             address: collectionMintPubkey,
-            updateAuthority: keypair,
+            updateAuthority: keypair
         },
-        guards: {
-            startDate: { date: toDateTime(startDate) },
-            endDate: { date: toDateTime(endDate) },
-        }
+        authority: keypair,
+        price: sol(0)
+        // guards: {
+        //     startDate: { date: toDateTime(startDate) },
+        //     endDate: { date: toDateTime(endDate) },
+        // }
     };
     const { candyMachine } = await metaplex.candyMachines().create(candyMachineSettings, { commitment: 'finalized' });
     console.log(`✅ - Created Candy Machine: ${candyMachine.address.toString()}`);
@@ -77,7 +87,7 @@ const addNFTItems = async (metaplex: Metaplex, candyMachinePubkey: PublicKey, ur
     const piecesUri = uri.split('/')
     const uriId = piecesUri[piecesUri.length - 1]
     const items: any[] = [];
-    for (let i = 0; i < collectionSize; i++) {
+    for (let i = 0; i < candyMachineItemsAvailable; i++) {
         items.push({
             name: '',
             index: i,
@@ -96,26 +106,47 @@ const addNFTItems = async (metaplex: Metaplex, candyMachinePubkey: PublicKey, ur
 
 
 const init = async () => {
+
     const keypair = getKeypair(pkPath)
     const metaplex = initializeMetaplex(cluster, keypair)
+    // metaplex.use(nftStorage());
 
-    const imageFile = fs.readFileSync(imagePath)
-    const uriCollection = await uploadMetadata(metaplex, imageFile)
-    const { address } = await create(metaplex, keypair, uriCollection)
+    const poapEnvVariables = getConfigObject(variablePrefix)
+
+    const address = await new Promise<PublicKey>(async (resolve, reject) => {
+        const { POAP_COLLECTION_NFT_MINT } = poapEnvVariables
+        if (overrideCollection) {
+            const uriCollection = await uploadMetadata(
+                metaplex,
+                fs.readFileSync(collectionImagePath),
+                collectionImageName,
+                collectionImageDescription,
+                []
+            )
+            const { address } = await createCollection(metaplex, keypair, uriCollection)
+            resolve(new PublicKey(address))
+        } else {
+            resolve(new PublicKey(POAP_COLLECTION_NFT_MINT))
+        }
+    })
 
     const candyMachine = await createCandyMachine(metaplex, keypair, address)
-    await addNFTItems(metaplex, candyMachine.address, uriCollection)
 
-    const configContent =
-        `COLLECTION_NFT_MINT=${address.toBase58()}
-        CANDY_MACHINE_ID=${candyMachine.address.toBase58()}`
-            .replace(/[^\S\r\n]/g, '')
+    const uriImage = await uploadMetadata(
+        metaplex,
+        fs.readFileSync(itemImagePath),
+        itemImageName,
+        itemImageDescription,
+        itemImageAttributes
+    )
+    await addNFTItems(metaplex, candyMachine.address, uriImage)
 
-    fs.writeFile('./.config', configContent, (err: Error) => {
-        if (err) {
-            console.error(err);
-        }
-    });
+    const envVariablesWithCollectionMint =
+        fp.merge(poapEnvVariables)({
+            POAP_COLLECTION_NFT_MINT: address.toBase58(),
+            POAP_CANDY_MACHINE_ID: candyMachine.address
+        })
+    updateConfigInFile(envVariablesWithCollectionMint)
 
     console.log(`✅✅✅ - Candy Machine created sucessfully`)
 

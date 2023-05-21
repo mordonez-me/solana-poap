@@ -12,27 +12,26 @@ const mintToUser = async (metaplex: Metaplex, keypair: Keypair, userAddress: str
 
     return metaplex.candyMachines().mint({
         candyMachine,
-        collectionUpdateAuthority: keypair.publicKey,
-        owner: new PublicKey(userAddress)
-    }, { commitment: 'finalized' })
-
+        owner: new PublicKey(userAddress),
+        collectionUpdateAuthority: keypair.publicKey
+    }, { commitment: 'finalized', payer: keypair })
 }
 
 const init = async () => {
     const keypair = getKeypair(pkPath)
     const metaplex = initializeMetaplex(cluster, keypair)
 
-    const { CANDY_MACHINE_ID } = parseConfig()
+    const { POAP_CANDY_MACHINE_ID } = parseConfig()
 
     const distributionList = getDistributionList()
     const time = Date.now()
 
-    const logFileError = `${CANDY_MACHINE_ID}_${time}.error`
-    const logFileSuccess = `${CANDY_MACHINE_ID}_${time}.success`
+    const logFileError = `${POAP_CANDY_MACHINE_ID}_${time}.error`
+    const logFileSuccess = `${POAP_CANDY_MACHINE_ID}_${time}.success`
 
     const promises = distributionList.map((address: string) => {
 
-        return mintToUser(metaplex, keypair, address, CANDY_MACHINE_ID, logFileError, logFileSuccess)
+        return mintToUser(metaplex, keypair, address, POAP_CANDY_MACHINE_ID, logFileError, logFileSuccess)
             .then(result => {
                 let { nft, response } = result
                 fs.appendFileSync(logFileSuccess, address + '\n')

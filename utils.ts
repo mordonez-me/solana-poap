@@ -1,9 +1,12 @@
 import { bundlrStorage, keypairIdentity, Metaplex } from "@metaplex-foundation/js"
 import { Connection, Keypair } from "@solana/web3.js"
 import { configFile, distributionListFile } from "./settings"
-const dotenv = require('dotenv')
+import { Dictionary } from 'lodash'
+import * as fp from 'lodash/fp'
 
+const dotenv = require('dotenv')
 const fs = require('fs')
+
 
 export const getKeypair = (path: string): Keypair => {
     const fileContent = fs.readFileSync(path, 'utf8')
@@ -30,4 +33,23 @@ export const getDistributionList = () => {
     const fileContent = fs.readFileSync(distributionListFile, 'utf8')
     const list = fileContent.split(/\n/)
     return list
+}
+
+export const getConfigObject = (variablePrefix: string): Dictionary<object> => {
+    return fp.pickBy((value: any, key: string) => {
+        return key.slice(0, variablePrefix.length) == variablePrefix
+    })(process.env)
+}
+
+export const updateConfigInFile = (poapEnvVariables: Dictionary<object>) => {
+    const configContentUpdated = fp.reduce((acc, curr) => {
+        return `${acc}${curr[0]}=${curr[1]}\n`
+    }, '', fp.entries(poapEnvVariables))
+
+    console.log('configContentUpdated', configContentUpdated)
+    fs.writeFile('./.config', configContentUpdated, (err: Error) => {
+        if (err) {
+            console.error(err);
+        }
+    });
 }
