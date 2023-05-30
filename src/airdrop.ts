@@ -29,8 +29,6 @@ export const init = async (params: AirdropParams) => {
     const keypair = getKeypair(privateKey)
     const metaplex = initializeMetaplex(cluster, keypair)
 
-    console.log('distributionList', distributionList)
-
     const distributionListArray = getDistributionList(distributionList)
     const time = Date.now()
 
