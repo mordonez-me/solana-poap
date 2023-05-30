@@ -4,19 +4,26 @@
   "private": true,
   "scripts": {
     "create-collection": "ts-node create.ts",
-    "airdrop": "ts-node airdrop.ts"
+    "airdrop": "ts-node airdrop.ts",
+    "start": "ts-node index.ts"
   },
   "dependencies": {
     "@metaplex-foundation/js": "^0.19.3",
     "@metaplex-foundation/js-plugin-nft-storage": "^0.19.3",
     "@metaplex-foundation/umi": "^0.7.7",
     "@solana/web3.js": "^1.76.0",
+    "chalk": "4.1.2",
+    "command-line-args": "^5.2.1",
+    "command-line-usage": "^7.0.1",
     "dotenv": "^16.0.3",
     "lodash": "^4.17.21",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.4"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.194"
+    "@types/command-line-args": "^5.2.0",
+    "@types/command-line-usage": "^5.0.2",
+    "@types/lodash": "^4.14.194",
+    "@types/node": "^20.2.5"
   }
 }

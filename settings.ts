@@ -10,25 +10,25 @@ export const distributionListFile = "./distribution_list.txt"
 export const variablePrefix = 'POAP_'
 
 // Collection settings
-export const overrideCollection = false
-export const collectionName = "Solana University POAPs"
-export const collectionImageName = "Solana University POAPs"
-export const collectionImageDescription = "Solana University POAPs"
+export const overrideCollection = true
+export const collectionName = "The Challenger"
+export const collectionImageName = "The Challenger"
+export const collectionImageDescription = "The Challenger"
 export const collectionImagePath = './collection.png'
 
 // Candy Machine settings
-export const candyMachineItemsAvailable = 2
+export const candyMachineItemsAvailable = 15
 
 // NFT Item settings
-export const itemImagePath = './caro.jpeg'
-export const itemImageName = "Community Call #1"
-export const itemImageDescription = "Description for Community Call"
+export const itemImagePath = './nft.png'
+export const itemImageName = "NFT México"
+export const itemImageDescription = "Image description"
 export const itemImageAttributes = [
-    { "trait_type": "Location", "value": "Twitter" }
+    { "trait_type": "Some trait", "value": "Some value" }
 ]
 
 // NFT Settings
-export const itemName = "Community Call"
+export const itemName = "México Hackathon Reward"
 export const nameLength = 0
 export const prefixUri = "https://arweave.net/"
 export const prefixUriLength = 43

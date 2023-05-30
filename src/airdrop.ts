@@ -1,7 +1,7 @@
 import { Metaplex } from "@metaplex-foundation/js";
 import { Keypair, PublicKey } from "@solana/web3.js"
-import { cluster, pkPath } from "./settings"
 import { getDistributionList, getKeypair, initializeMetaplex, parseConfig } from "./utils"
+import chalk from "chalk";
 const fs = require('fs')
 
 const mintToUser = async (metaplex: Metaplex, keypair: Keypair, userAddress: string, candyMachineAddress: string, logFileError: string, logFileSuccess: string) => {
@@ -17,40 +17,44 @@ const mintToUser = async (metaplex: Metaplex, keypair: Keypair, userAddress: str
     }, { commitment: 'finalized', payer: keypair })
 }
 
-const init = async () => {
-    const keypair = getKeypair(pkPath)
+export interface AirdropParams {
+    privateKey: string;
+    cluster: string;
+    candyMachineAddress: string;
+    distributionList: string;
+}
+
+export const init = async (params: AirdropParams) => {
+    const { privateKey, cluster, candyMachineAddress, distributionList } = params
+    const keypair = getKeypair(privateKey)
     const metaplex = initializeMetaplex(cluster, keypair)
 
-    const { POAP_CANDY_MACHINE_ID } = parseConfig()
+    console.log('distributionList', distributionList)
 
-    const distributionList = getDistributionList()
+    const distributionListArray = getDistributionList(distributionList)
     const time = Date.now()
 
-    const logFileError = `${POAP_CANDY_MACHINE_ID}_${time}.error`
-    const logFileSuccess = `${POAP_CANDY_MACHINE_ID}_${time}.success`
+    const logFileError = `logs/${candyMachineAddress}_${time}.error`
+    const logFileSuccess = `logs/${candyMachineAddress}_${time}.success`
 
-    const promises = distributionList.map((address: string) => {
+    const promises = distributionListArray.map((address: string) => {
 
-        return mintToUser(metaplex, keypair, address, POAP_CANDY_MACHINE_ID, logFileError, logFileSuccess)
+        return mintToUser(metaplex, keypair, address, candyMachineAddress, logFileError, logFileSuccess)
             .then(result => {
                 let { nft, response } = result
                 fs.appendFileSync(logFileSuccess, address + '\n')
 
-                console.log(`✅ - Minted NFT: ${nft.address.toString()}`);
-                console.log(`     https://explorer.solana.com/address/${nft.address.toString()}`);
-                console.log(`     https://explorer.solana.com/tx/${response.signature}`);
+                console.log('✅ - ' + chalk.green(`Minted NFT: ${nft.address.toString()}`));
             })
             .catch(e => {
                 console.log(e)
                 fs.appendFileSync(logFileError, address + '\n');
-                console.log(`🔴 - User address ${address} not minted`);
+                console.log('🔴 - ' + chalk.red(`User address ${address} not minted`));
             })
     })
 
     await Promise.all(promises)
 
-    console.log(`✅✅✅ - Candy Machine distributed finished`)
+    console.log(`✅ - Candy Machine distributed finished`)
 
 }
-
-init()

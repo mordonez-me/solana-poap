@@ -1,0 +1,2 @@
+// require('./args')
+import './args'

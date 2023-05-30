@@ -1,11 +1,13 @@
-import { bundlrStorage, keypairIdentity, Metaplex } from "@metaplex-foundation/js"
+import { bundlrStorage, keypairIdentity, Metaplex, toMetaplexFile } from "@metaplex-foundation/js"
 import { Connection, Keypair } from "@solana/web3.js"
-import { configFile, distributionListFile } from "./settings"
+import { configFile, distributionListFile } from "../settings"
 import { Dictionary } from 'lodash'
 import * as fp from 'lodash/fp'
+import * as fs from 'fs'
+import dotenv from 'dotenv'
 
-const dotenv = require('dotenv')
-const fs = require('fs')
+// const dotenv = require('dotenv')
+// const fs = require('fs')
 
 
 export const getKeypair = (path: string): Keypair => {
@@ -29,7 +31,7 @@ export const parseConfig = () => {
     return dotenv.parse(buf)
 }
 
-export const getDistributionList = () => {
+export const getDistributionList = (distributionListFile: string) => {
     const fileContent = fs.readFileSync(distributionListFile, 'utf8')
     const list = fileContent.split(/\n/)
     return list
@@ -41,15 +43,20 @@ export const getConfigObject = (variablePrefix: string): Dictionary<object> => {
     })(process.env)
 }
 
-export const updateConfigInFile = (poapEnvVariables: Dictionary<object>) => {
+export const updateConfigInFile = (poapEnvVariables: Dictionary<object>, filePath: string) => {
     const configContentUpdated = fp.reduce((acc, curr) => {
         return `${acc}${curr[0]}=${curr[1]}\n`
     }, '', fp.entries(poapEnvVariables))
 
-    console.log('configContentUpdated', configContentUpdated)
-    fs.writeFile('./.config', configContentUpdated, (err: Error) => {
-        if (err) {
-            console.error(err);
-        }
+    fs.writeFileSync(filePath, configContentUpdated, { encoding: "utf8", flag: "w", mode: 0o666 })
+}
+
+export const uploadMetadata = async (metaplex: Metaplex, imageFile: Buffer, itemImageName: string, itemImageDescription: string, itemImageAttributes: Array<{ trait_type?: string; value?: string;[key: string]: unknown; }>) => {
+    const { uri } = await metaplex.nfts().uploadMetadata({
+        name: itemImageName,
+        image: toMetaplexFile(imageFile, 'poap.png'),
+        description: itemImageDescription,
+        attributes: itemImageAttributes,
     });
+    return uri
 }
