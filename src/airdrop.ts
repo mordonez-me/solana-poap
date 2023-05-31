@@ -1,6 +1,6 @@
 import { Metaplex } from "@metaplex-foundation/js";
 import { Keypair, PublicKey } from "@solana/web3.js"
-import { getDistributionList, getKeypair, initializeMetaplex, parseConfig } from "./utils"
+import { getDistributionList, getKeypair, initializeMetaplex } from "./utils"
 import chalk from "chalk";
 const fs = require('fs')
 

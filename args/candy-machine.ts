@@ -26,6 +26,14 @@ export default (argv: any) => {
             group: 'required'
         },
         {
+            name: 'item-name',
+            alias: 'n',
+            type: String,
+            description: 'Name for the NFT to mint (uses autoincrement automatically).',
+            typeLabel: '{underline string}',
+            group: 'required'
+        },
+        {
             name: 'image-path',
             alias: 'P',
             type: String,

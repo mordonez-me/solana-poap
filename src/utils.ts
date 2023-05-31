@@ -1,13 +1,8 @@
 import { bundlrStorage, keypairIdentity, Metaplex, toMetaplexFile } from "@metaplex-foundation/js"
 import { Connection, Keypair } from "@solana/web3.js"
-import { configFile, distributionListFile } from "../settings"
 import { Dictionary } from 'lodash'
 import * as fp from 'lodash/fp'
 import * as fs from 'fs'
-import dotenv from 'dotenv'
-
-// const dotenv = require('dotenv')
-// const fs = require('fs')
 
 
 export const getKeypair = (path: string): Keypair => {
@@ -23,12 +18,6 @@ export const initializeMetaplex = (cluster: string, keypair: Keypair) => {
         .use(bundlrStorage({
             address: 'https://devnet.bundlr.network', // remove this to use main
         }));
-}
-
-export const parseConfig = () => {
-    const fileContent = fs.readFileSync(configFile, 'utf8')
-    const buf = Buffer.from(fileContent)
-    return dotenv.parse(buf)
 }
 
 export const getDistributionList = (distributionListFile: string) => {

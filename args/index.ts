@@ -35,9 +35,6 @@ const mainDefinitions = [
 const mainOptions = commandLineArgs(commands, { stopAtFirstUnknown: true })
 const argv = mainOptions._unknown || []
 
-// console.log('mainOptions\n===========')
-// console.log(mainOptions)
-
 const CREATE_COLLECTION = 'create-collection'
 const CREATE_CANDY_MACHINE = 'create-candy-machine'
 const AIRDROP = 'airdrop'
@@ -48,7 +45,6 @@ const commandDetected = _.filter(_.map(
     allowedCommands, command => mainOptions.command == command
 ), x => x == false)
 
-// console.log('commandDetected', commandDetected)
 if (commandDetected.length == allowedCommands.length) {
     const mainUsage = commandLineUsage(mainDefinitions)
     console.log(mainUsage)

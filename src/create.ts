@@ -1,12 +1,8 @@
 import { Metaplex } from "@metaplex-foundation/js"
-import { Keypair, PublicKey } from "@solana/web3.js"
-import { variablePrefix } from "../settings";
-import { getKeypair, initializeMetaplex, getConfigObject, updateConfigInFile, uploadMetadata } from "./utils"
-import * as dotenv from 'dotenv'
-import * as fp from 'lodash/fp'
+import { Keypair } from "@solana/web3.js"
+import { getKeypair, initializeMetaplex, uploadMetadata } from "./utils"
 import * as _ from 'lodash'
 import * as fs from 'fs'
-import * as path from 'path'
 import chalk from "chalk";
 
 
