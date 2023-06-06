@@ -79,7 +79,6 @@ export interface CreateCandyMachineParams {
 
 export const init = async (params: CreateCandyMachineParams) => {
     const { privateKey, cluster, collectionAddress, quantity, itemName, imagePath, imageName, imageDescription, attributes } = params
-    console.log('itemName', itemName)
 
     const keypair = getKeypair(privateKey)
     const metaplex = initializeMetaplex(cluster, keypair)

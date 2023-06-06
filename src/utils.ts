@@ -1,5 +1,5 @@
 import { bundlrStorage, keypairIdentity, Metaplex, toMetaplexFile } from "@metaplex-foundation/js"
-import { Connection, Keypair } from "@solana/web3.js"
+import { clusterApiUrl, Connection, Keypair } from "@solana/web3.js"
 import { Dictionary } from 'lodash'
 import * as fp from 'lodash/fp'
 import * as fs from 'fs'
@@ -13,11 +13,16 @@ export const getKeypair = (path: string): Keypair => {
 
 export const initializeMetaplex = (cluster: string, keypair: Keypair) => {
     const connection = new Connection(cluster);
-    return Metaplex.make(connection)
+    const metaplaex = Metaplex.make(connection)
         .use(keypairIdentity(keypair))
-        .use(bundlrStorage({
-            address: 'https://devnet.bundlr.network', // remove this to use main
+    if (cluster == clusterApiUrl('devnet')) {
+        return metaplaex.use(bundlrStorage({
+            address: 'https://devnet.bundlr.network',
         }));
+    } else {
+        return metaplaex
+    }
+
 }
 
 export const getDistributionList = (distributionListFile: string) => {
