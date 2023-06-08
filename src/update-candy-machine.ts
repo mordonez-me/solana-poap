@@ -1,4 +1,4 @@
-import { CandyMachineConfigLineSettings, Metaplex, PublicKey, sol, toBigNumber } from "@metaplex-foundation/js";
+import { CandyMachine, CandyMachineConfigLineSettings, DefaultCandyGuardMintSettings, Metaplex, PublicKey, sol, toBigNumber } from "@metaplex-foundation/js";
 import { nameLength, prefixUri, prefixUriLength } from "../settings"
 import { getKeypair, initializeMetaplex, uploadMetadata } from "./utils"
 import { Keypair } from "@solana/web3.js";
@@ -6,7 +6,7 @@ import chalk from "chalk";
 
 const fs = require('fs')
 
-const createCandyMachine = async (metaplex: Metaplex, keypair: Keypair, collectionMintPubkey: PublicKey, itemName: string, quantity: number) => {
+const updateCandyMachine = async (metaplex: Metaplex, keypair: Keypair, collectionMintPubkey: PublicKey, candyMachine: CandyMachine, itemName: string, quantity: number) => {
     const itemSettings: CandyMachineConfigLineSettings = {
         type: 'configLines',
         prefixName: itemName + ' #$ID+1$',
@@ -17,6 +17,7 @@ const createCandyMachine = async (metaplex: Metaplex, keypair: Keypair, collecti
     }
     const candyMachineSettings =
     {
+        candyMachine: candyMachine,
         itemsAvailable: toBigNumber(quantity),
         itemSettings,
         sellerFeeBasisPoints: 0,
@@ -35,8 +36,9 @@ const createCandyMachine = async (metaplex: Metaplex, keypair: Keypair, collecti
         //     mintLimit: { id: 1, limit: 5 },
         // }
     };
-    const { candyMachine } = await metaplex.candyMachines().create(candyMachineSettings, { commitment: 'finalized' });
-    return candyMachine
+
+    const updateCandyMachineOutput = await metaplex.candyMachines().update(candyMachineSettings, { commitment: 'finalized' });
+    return updateCandyMachineOutput.response.signature
 }
 
 const addNFTItems = async (metaplex: Metaplex, candyMachinePubkey: PublicKey, uri: string, quantity: number) => {
@@ -63,10 +65,11 @@ const addNFTItems = async (metaplex: Metaplex, candyMachinePubkey: PublicKey, ur
 
 }
 
-export interface CreateCandyMachineParams {
+export interface UpdateCandyMachineParams {
     privateKey: string;
     cluster: string;
     collectionAddress: string;
+    candyMachineAddress: string;
     quantity: number;
     itemName: string;
     imagePath: string;
@@ -76,14 +79,23 @@ export interface CreateCandyMachineParams {
 }
 
 
-export const init = async (params: CreateCandyMachineParams) => {
-    const { privateKey, cluster, collectionAddress, quantity, itemName, imagePath, imageName, imageDescription, attributes } = params
+export const init = async (params: UpdateCandyMachineParams) => {
+    const { privateKey, cluster, collectionAddress, candyMachineAddress, quantity, itemName, imagePath, imageName, imageDescription, attributes } = params
 
     const keypair = getKeypair(privateKey)
     const metaplex = initializeMetaplex(cluster, keypair)
 
-    const candyMachine = await createCandyMachine(
-        metaplex, keypair, new PublicKey(collectionAddress), itemName, quantity)
+    const candyMachineAddressPublicKey = new PublicKey(candyMachineAddress)
+
+    const candyMachine = await metaplex
+        .candyMachines()
+        .findByAddress({ address: candyMachineAddressPublicKey });
+
+
+    candyMachine
+
+    await updateCandyMachine(
+        metaplex, keypair, new PublicKey(collectionAddress), candyMachine, itemName, quantity)
 
     const uriImage = await uploadMetadata(
         metaplex,
@@ -92,7 +104,8 @@ export const init = async (params: CreateCandyMachineParams) => {
         imageDescription,
         attributes ? JSON.parse(attributes) : []
     )
-    await addNFTItems(metaplex, candyMachine.address, uriImage, quantity)
+    await addNFTItems(metaplex, candyMachineAddressPublicKey, uriImage, quantity)
 
-    console.log('✅ - ' + chalk.green(`Candy Machine Address: ${candyMachine.address.toString()}`));
+    console.log('✅ - ' + chalk.green(`Candy Machine Address: ${candyMachineAddress}`));
+    console.log('✅ - ' + chalk.green(`Candy Machine Address: ${candyMachineAddressPublicKey.toBase58()}`));
 }

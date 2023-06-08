@@ -3,6 +3,7 @@ import commandLineUsage from 'command-line-usage'
 import commandLineArgs from 'command-line-args'
 import runCreateCollection from './create'
 import runCreateCandyMachine from './candy-machine'
+import runUpdateCandyMachine from './update-candy-machine'
 import runAirdrop from './airdrop'
 import _ from 'lodash'
 
@@ -37,9 +38,10 @@ const argv = mainOptions._unknown || []
 
 const CREATE_COLLECTION = 'create-collection'
 const CREATE_CANDY_MACHINE = 'create-candy-machine'
+const UPDATE_CANDY_MACHINE = 'update-candy-machine'
 const AIRDROP = 'airdrop'
 
-const allowedCommands = [CREATE_CANDY_MACHINE, CREATE_COLLECTION, AIRDROP]
+const allowedCommands = [CREATE_CANDY_MACHINE, UPDATE_CANDY_MACHINE, CREATE_COLLECTION, AIRDROP]
 
 const commandDetected = _.filter(_.map(
     allowedCommands, command => mainOptions.command == command
@@ -54,6 +56,8 @@ if (mainOptions.command === CREATE_COLLECTION) {
     runCreateCollection(argv)
 } else if (mainOptions.command === CREATE_CANDY_MACHINE) {
     runCreateCandyMachine(argv)
+} else if (mainOptions.command === UPDATE_CANDY_MACHINE) {
+    runUpdateCandyMachine(argv)
 } else if (mainOptions.command === AIRDROP) {
     runAirdrop(argv)
 }

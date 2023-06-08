@@ -7,3 +7,4 @@ distribution_list.txt
 yarn.lock
 *.success
 *.error
+*.json
