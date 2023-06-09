@@ -47,7 +47,7 @@ const addNFTItems = async (metaplex: Metaplex, candyMachinePubkey: PublicKey, ur
     const uriId = piecesUri[piecesUri.length - 1]
 
 
-    const groupSize = 10
+    const groupSize = 15
     const groups = Math.ceil(quantity / groupSize)
 
     for (let index = 0; index < groups; index++) {
