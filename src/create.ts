@@ -1,4 +1,5 @@
 import { Metaplex } from "@metaplex-foundation/js"
+import { TokenStandard } from "@metaplex-foundation/mpl-token-metadata"
 import { Keypair } from "@solana/web3.js"
 import { getKeypair, initializeMetaplex, uploadMetadata } from "./utils"
 import * as _ from 'lodash'
@@ -12,6 +13,7 @@ const createNFT = async (metaplex: Metaplex, keypair: Keypair, uri: string, coll
         name: collectionName,
         sellerFeeBasisPoints: 0,
         isCollection: true,
+        // tokenStandard: TokenStandard.ProgrammableNonFungible,
         updateAuthority: keypair
     }, { commitment: 'finalized' });
     return nft

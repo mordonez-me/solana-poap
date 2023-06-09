@@ -38,8 +38,30 @@ export const init = async (params: AirdropParams) => {
     const promises = distributionListArray.map((address: string) => {
 
         return mintToUser(metaplex, keypair, address, candyMachineAddress, logFileError, logFileSuccess)
-            .then(result => {
+            .then(async result => {
+                console.log(result)
                 let { nft, response } = result
+
+
+
+
+
+
+                // const approve = await metaplex.tokens().approveDelegateAuthority({
+                //     mintAddress: nft.mint.address,
+                //     delegateAuthority: keypair.publicKey,
+                //     tokenAddress: nft.token.address
+                // })
+
+                // console.log('approve', approve)
+
+                // const freeze = await freezeDelegatedNftOperation({
+                //     mintAddress: nft.mint.address,
+                //     delegateAuthority: keypair
+                // } as FreezeDelegatedNftInput)
+
+                // console.log('freeze', freeze)
+
                 fs.appendFileSync(logFileSuccess, address + '\n')
 
                 console.log('✅ - ' + chalk.green(`Minted NFT: ${nft.address.toString()}`));

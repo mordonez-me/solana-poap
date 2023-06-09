@@ -45,21 +45,36 @@ const addNFTItems = async (metaplex: Metaplex, candyMachinePubkey: PublicKey, ur
         .findByAddress({ address: candyMachinePubkey });
     const piecesUri = uri.split('/')
     const uriId = piecesUri[piecesUri.length - 1]
-    const items: any[] = [];
-    for (let i = 0; i < quantity; i++) {
-        items.push({
-            name: '',
-            index: i,
-            uri: uriId
-        })
-    }
-    const { response } = await metaplex.candyMachines().insertItems({
-        candyMachine,
-        items: items,
-    }, { commitment: 'finalized' });
 
-    // console.log(`✅ - Items added to Candy Machine: ${candyMachinePubkey.toBase58()}`);
-    // console.log(`     https://explorer.solana.com/tx/${response.signature}`);
+
+    const groupSize = 10
+    const groups = Math.ceil(quantity / groupSize)
+
+    for (let index = 0; index < groups; index++) {
+
+        console.log("Starting group", index + 1)
+        const items: any[] = [];
+        const diff = groupSize * index
+
+        for (let i = 0; i < groupSize; i++) {
+            console.log(i + diff, uriId)
+            items.push({
+                name: '',
+                index: i + diff,
+                uri: uriId
+            })
+        }
+
+
+        const { response } = await metaplex.candyMachines().insertItems({
+            candyMachine,
+            items: items,
+        }, { commitment: 'finalized' });
+
+        console.log(`✅ - Items added to Candy Machine: ${candyMachinePubkey.toBase58()}`);
+        console.log(`     https://explorer.solana.com/tx/${response.signature}`);
+
+    }
 
 }
 
